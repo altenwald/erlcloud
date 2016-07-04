@@ -23,7 +23,7 @@
          get_object_metadata/2, get_object_metadata/3, get_object_metadata/4,
          put_object/3, put_object/4, put_object/5, put_object/6,
          set_object_acl/3, set_object_acl/4,
-         make_link/3, make_link/4,
+         make_link/5, make_link/6,
          make_get_url/3, make_get_url/4,
          start_multipart/2, start_multipart/5,
          upload_part/5, upload_part/7,
@@ -742,16 +742,27 @@ sign_get(Expire_time, BucketName, Key, Config)
     Sig = base64:encode(erlcloud_util:sha_mac(Config#aws_config.secret_access_key, To_sign)),
     {Sig, Expires}.
 
--spec make_link(integer(), string(), string()) -> {integer(), string(), string()}.
+-spec sign(string(), string(), integer(), string(), string(), aws_config()) -> {binary(), string()}.
+sign(Method, ContentType, Expire_time, BucketName, Key, Config)
+  when is_integer(Expire_time), is_list(BucketName), is_list(Key) ->
+    {Mega, Sec, _Micro} = os:timestamp(),
+    Datetime = (Mega * 1000000) + Sec,
+    Expires = integer_to_list(Expire_time + Datetime),
+    To_sign = lists:flatten([Method, "\n\n", ContentType, "\n", Expires, "\n/", BucketName, "/", Key]),
+    Sig = base64:encode(erlcloud_util:sha_mac(Config#aws_config.secret_access_key, To_sign)),
+    {Sig, Expires}.
 
-make_link(Expire_time, BucketName, Key) ->
-    make_link(Expire_time, BucketName, Key, default_config()).
+-spec make_link(string(), string(), integer(), string(), string()) -> {integer(), string(), string()}.
 
--spec make_link(integer(), string(), string(), aws_config()) -> {integer(), string(), string()}.
+make_link(Method, ContentType, Expire_time, BucketName, Key) ->
+    make_link(Method, ContentType, Expire_time, BucketName, Key, default_config()).
 
-make_link(Expire_time, BucketName, Key, Config) ->
+
+-spec make_link(string(), string(), integer(), string(), string(), aws_config()) -> {integer(), string(), string()}.
+
+make_link(Method, ContentType, Expire_time, BucketName, Key, Config) ->
     EncodedKey = erlcloud_http:url_encode_loose(Key),
-    {Sig, Expires} = sign_get(Expire_time, BucketName, EncodedKey, Config),
+    {Sig, Expires} = sign(Method, ContentType, Expire_time, BucketName, EncodedKey, Config),
     Host = lists:flatten([Config#aws_config.s3_scheme, BucketName, ".", Config#aws_config.s3_host, port_spec(Config)]),
     SecurityTokenQS = case Config#aws_config.security_token of
         undefined -> "";
