@@ -12,14 +12,14 @@
                   ssl,
                   xmerl,
                   inets,
-                  eini,
                   jsx,
+                  eini,
                   %% hackney,
                   lhttpc]},
   {modules, []},
   {env, []},
   {licenses, ["MIT"]},
-  {links, [{"Github", "https://github.com/erlcloud/erlcloud"}]},
+  {links, [{"Github", "https://github.com/alertlogic/erlcloud"}]},
   {maintainers, []}
  ]
 }.

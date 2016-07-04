@@ -1,8 +1,8 @@
 %% -*- mode: erlang;erlang-indent-level: 4;indent-tabs-mode: nil -*-
 -module(erlcloud_sts).
 
--include("erlcloud.hrl").
--include("erlcloud_aws.hrl").
+-include_lib("erlcloud/include/erlcloud.hrl").
+-include_lib("erlcloud/include/erlcloud_aws.hrl").
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
@@ -21,7 +21,7 @@ assume_role(AwsConfig, RoleArn, RoleSessionName, DurationSeconds) ->
 
 
 % See http://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html
--spec assume_role(#aws_config{}, string(), string(), 900..3600, undefined | string()) -> {#aws_config{}, proplist()}.
+-spec assume_role/5 :: (#aws_config{}, string(), string(), 900..3600, undefined | string()) -> {#aws_config{}, proplist()}.
 assume_role(AwsConfig, RoleArn, RoleSessionName, DurationSeconds, ExternalId)
     when length(RoleArn) >= 20,
          length(RoleSessionName) >= 2, length(RoleSessionName) =< 32,
@@ -65,7 +65,7 @@ get_federation_token(AwsConfig, DurationSeconds, Name) ->
         get_federation_token(AwsConfig, DurationSeconds, Name, undefined).
 
 % See http://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html
--spec get_federation_token(#aws_config{}, 900..129600, string(), undefined | string()) -> {#aws_config{}, proplist()}.
+-spec get_federation_token/4 :: (#aws_config{}, 900..129600, string(), undefined | string()) -> {#aws_config{}, proplist()}.
 get_federation_token(AwsConfig, DurationSeconds, Name, Policy)
   when length(Name) >= 2, length(Name) =< 32,
        DurationSeconds >= 900, DurationSeconds =< 129600 ->
@@ -109,13 +109,17 @@ sts_query(AwsConfig, Action, Params) ->
 
 
 sts_query(AwsConfig, Action, Params, ApiVersion) ->
-    erlcloud_aws:aws_request_xml(post,
+    case erlcloud_aws:aws_request_xml4(post,
         AwsConfig#aws_config.sts_host,
         "/",
         [{"Action", Action}, {"Version", ApiVersion} | Params],
-        AwsConfig
-    ).
-
+        "sts", AwsConfig)
+    of
+        {ok, Body} ->
+            Body;
+        {error, Reason} ->
+            erlang:error({aws_error, Reason})
+    end.
 
 expiration_tosecs( Datetime ) when is_tuple(Datetime) ->
     GregorianSeconds = calendar:datetime_to_gregorian_seconds( Datetime ),
@@ -134,13 +138,3 @@ expiration_tosecs_test() ->
 
 
 -endif.
-
-
-
-
-
-
-
-
-
-

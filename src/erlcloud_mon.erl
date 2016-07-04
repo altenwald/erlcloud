@@ -15,18 +15,18 @@
 -export([configure/2, configure/3, new/2, new/3]).
 
 -export([
-         list_metrics/4,
-         put_metric_data/2,
-         put_metric_data/5,
-         get_metric_statistics/8,
+         list_metrics/5, list_metrics/4,
+         put_metric_data/3, put_metric_data/2,
+         put_metric_data/6, put_metric_data/5,
+         get_metric_statistics/9, get_metric_statistics/8,
          configure_host/3,
          test/0,
          test2/0
         ]).
 
--include("erlcloud.hrl").
--include("erlcloud_aws.hrl").
--include("erlcloud_mon.hrl").
+-include_lib("erlcloud/include/erlcloud.hrl").
+-include_lib("erlcloud/include/erlcloud_aws.hrl").
+-include_lib("erlcloud/include/erlcloud_mon.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
 
 -import(erlcloud_xml, [get_text/2]).
@@ -62,8 +62,24 @@ list_metrics(
   DimensionFilter,
   NextToken
  ) ->
+    list_metrics(Namespace, MetricName, DimensionFilter, NextToken, default_config()).
 
-    Config = default_config(),
+-spec list_metrics(
+        Namespace       ::string(),
+        MetricName      ::string(),
+        DimensionFilter ::[{string(),string()}],
+        NextToken       ::string(),
+        Config          ::aws_config()
+                          ) -> term().
+
+list_metrics(
+  Namespace,
+  MetricName,
+  DimensionFilter,
+  NextToken,
+  #aws_config{} = Config
+ ) ->
+
     Params =
         [{"Namespace",  Namespace}  || Namespace/=""]
         ++
@@ -126,7 +142,16 @@ extract_dimension(Node) ->
                       ) -> term().
 
 put_metric_data(Namespace, MetricData) ->
-    Config = default_config(),
+    put_metric_data(Namespace, MetricData, default_config()).
+
+-spec put_metric_data(
+        Namespace   ::string(),
+        MetricData  ::[metric_datum()],
+        Config      ::aws_config()
+                      ) -> term().
+
+put_metric_data(Namespace, MetricData, #aws_config{} = Config) ->
+
     Params =
         [
          {"Namespace", Namespace} |
@@ -203,7 +228,18 @@ params_stat(Prefix, StatisticValues) ->
                       ) -> term().
 
 put_metric_data(Namespace, MetricName, Value, Unit, Timestamp) ->
-    Config = default_config(),
+    put_metric_data(Namespace, MetricName, Value, Unit, Timestamp, default_config()).
+
+-spec put_metric_data(
+        Namespace   ::string(),
+        MetricName  ::string(),
+        Value       ::string(),
+        Unit        ::unit(),
+        Timestamp   ::datetime()|string(),
+        Config      ::aws_config()
+                      ) -> term().
+
+put_metric_data(Namespace, MetricName, Value, Unit, Timestamp, #aws_config{} = Config) ->
     Params =
         lists:flatten(
           [
@@ -233,6 +269,40 @@ put_metric_data(Namespace, MetricName, Value, Unit, Timestamp) ->
                       ) -> term().
 
 get_metric_statistics(
+  Namespace,
+  MetricName,
+  StartTime,
+  EndTime,
+  Period,
+  Unit,
+  Statistics,
+  Dimensions
+ ) ->
+    get_metric_statistics(
+      Namespace,
+      MetricName,
+      StartTime,
+      EndTime,
+      Period,
+      Unit,
+      Statistics,
+      Dimensions,
+      default_config()
+     ).
+
+-spec get_metric_statistics(
+        Namespace   ::string(),
+        MetricName  ::string(),
+        StartTime   ::string(),
+        EndTime     ::string(),
+        Period      ::pos_integer(),
+        Unit        ::string(),
+        Statistics  ::[string()],
+        Dimensions  ::[string()],
+        Config      ::aws_config()
+                      ) -> term().
+
+get_metric_statistics(
   _Namespace,
   _MetricName,
   _StartTime,
@@ -240,7 +310,8 @@ get_metric_statistics(
   _Period,
   _Unit,
   _Statistics,
-  _Dimensions
+  _Dimensions,
+  #aws_config{} = _Config
  ) ->
     todo.
 
@@ -276,23 +347,23 @@ configure_host(Host, Port, Protocol) ->
                                   mon_protocol=Protocol},
     put(aws_config, NewConfig).
 
--spec new(string(), string()) -> aws_config().
+-spec(new/2 :: (string(), string()) -> aws_config()).
 new(AccessKeyID, SecretAccessKey) ->
     #aws_config{access_key_id=AccessKeyID,
                 secret_access_key=SecretAccessKey}.
 
--spec new(string(), string(), string()) -> aws_config().
+-spec(new/3 :: (string(), string(), string()) -> aws_config()).
 new(AccessKeyID, SecretAccessKey, Host) ->
     #aws_config{access_key_id=AccessKeyID,
                 secret_access_key=SecretAccessKey,
                 mon_host=Host}.
 
--spec configure(string(), string()) -> ok.
+-spec(configure/2 :: (string(), string()) -> ok).
 configure(AccessKeyID, SecretAccessKey) ->
     put(aws_config, new(AccessKeyID, SecretAccessKey)),
     ok.
 
--spec configure(string(), string(), string()) -> ok.
+-spec(configure/3 :: (string(), string(), string()) -> ok).
 configure(AccessKeyID, SecretAccessKey, Host) ->
     put(aws_config, new(AccessKeyID, SecretAccessKey, Host)),
     ok.

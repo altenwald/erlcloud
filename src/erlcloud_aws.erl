@@ -8,7 +8,8 @@
          aws_request_xml4/6, aws_request_xml4/8,
          aws_region_from_host/1,
          aws_request_form/8,
-         param_list/2, default_config/0, update_config/1,
+         aws_request_form_raw/8,
+         param_list/2, default_config/0, auto_config/0, update_config/1,
          service_config/3,
          configure/1, format_timestamp/1,
          http_headers_body/1,
@@ -16,14 +17,16 @@
          sign_v4_headers/5,
          sign_v4/8,
          get_service_status/1,
+         is_throttling_error_response/1,
          get_timeout/1,
          profile/0, profile/1, profile/2
 ]).
 
 -include("erlcloud.hrl").
--include("erlcloud_aws.hrl").
+-include_lib("erlcloud/include/erlcloud_aws.hrl").
 
 -define(ERLCLOUD_RETRY_TIMEOUT, 10000).
+-define(GREGORIAN_EPOCH_OFFSET, 62167219200).
 
 -record(metadata_credentials,
         {access_key_id :: string(),
@@ -149,49 +152,89 @@ aws_request4_no_update(Method, Protocol, Host, Port, Path, Params, Service, #aws
     Region = aws_region_from_host(Host),
 
     SignedHeaders = case Method of
-                        post ->
-                            sign_v4(Method, Path, Config,
-                                    [{"host", Host}], list_to_binary(Query),
-                                    Region, Service, []);
-                        get ->
-                            sign_v4(Method, Path, Config, [{"host", Host}],
-                                    <<>>, Region, Service, Params)
-                    end,
+        M when M =:= get orelse M =:= head orelse M =:= delete ->
+            sign_v4(M, Path, Config, [{"host", Host}],
+                    [], Region, Service, Params);
+        _ ->
+            sign_v4(Method, Path, Config,
+                    [{"host", Host}], list_to_binary(Query),
+                    Region, Service, [])
+    end,
 
     aws_request_form(Method, Protocol, Host, Port, Path, Query, SignedHeaders, Config).
 
 
 -spec aws_request_form(Method :: atom(), Protocol :: undefined | string(), Host :: string(),
-                        Port :: undefined | integer() | string(), Path :: string(), Form :: iodata(),
+                        Port :: undefined | integer() | string(), Path :: string(), Form :: string(),
                         Headers :: list(), Config :: aws_config()) -> {ok, binary()} | {error, tuple()}.
 aws_request_form(Method, Protocol, Host, Port, Path, Form, Headers, Config) ->
-    UProtocol = case Protocol of
+    RequestHeaders = [{"content-type", 
+                      "application/x-www-form-urlencoded; charset=utf-8"} | 
+                     Headers],
+    Scheme = case Protocol of
         undefined -> "https://";
         _ -> [Protocol, "://"]
     end,
+    aws_request_form_raw(Method, Scheme, Host, Port, Path, list_to_binary(Form), RequestHeaders, Config).
 
+-spec aws_request_form_raw(Method :: atom(), Scheme :: string(), Host :: string(),
+                        Port :: undefined | integer() | string(), Path :: string(), Form :: iodata(),
+                        Headers :: list(), Config :: aws_config()) -> {ok, binary()} | {error, tuple()}.
+aws_request_form_raw(Method, Scheme, Host, Port, Path, Form, Headers, Config) ->
     URL = case Port of
-        undefined -> [UProtocol, Host, Path];
-        _ -> [UProtocol, Host, $:, port_to_str(Port), Path]
+        undefined -> [Scheme, Host, Path];
+        _ -> [Scheme, Host, $:, port_to_str(Port), Path]
     end,
+    
+    ResultFun = 
+        fun(#aws_request{response_type = ok} = Request) ->
+                Request;
+           (#aws_request{response_type = error,
+                         error_type = aws,
+                         response_status = Status} = Request) when
+                %% Retry conflicting operations 409,Conflict and 500s.
+                    Status == 409; Status >= 500 ->
+                Request#aws_request{should_retry = true};
+           (#aws_request{response_type = error,
+                         error_type = aws,
+                         response_status = Status} = Request) when
+                %% Retry for 400, Bad Request is needed due to Amazon 
+                %% returns it in case of throttling
+                    Status == 400 ->
+                ShouldRetry = is_throttling_error_response(Request),
+                Request#aws_request{should_retry = ShouldRetry};
+           (#aws_request{response_type = error} = Request) ->
+                Request#aws_request{should_retry = false}
+        end,
 
     %% Note: httpc MUST be used with {timeout, timeout()} option
     %%       Many timeout related failures is observed at prod env
     %%       when library is used in 24/7 manner
     Response =
         case Method of
-            get ->
+            M when M =:= get orelse M =:= head orelse M =:= delete ->
                 Req = lists:flatten([URL, $?, Form]),
-                erlcloud_httpc:request(
-                  Req, get, Headers, <<>>, get_timeout(Config), Config);
+                AwsRequest = #aws_request{uri = Req, 
+                                          method = M,
+                                          request_headers = Headers,
+                                          request_body = <<>>},
+                erlcloud_retry:request(Config, AwsRequest, ResultFun);
             _ ->
-                erlcloud_httpc:request(
-                  lists:flatten(URL), Method,
-                  [{<<"content-type">>, <<"application/x-www-form-urlencoded; charset=utf-8">>} | Headers],
-                  list_to_binary(Form), get_timeout(Config), Config)
+                AwsRequest = #aws_request{uri = lists:flatten(URL), 
+                                          method = Method,
+                                          request_headers = Headers,
+                                          request_body = Form},
+                erlcloud_retry:request(Config, AwsRequest, ResultFun)
         end,
 
-    http_body(Response).
+    case request_to_return(Response) of
+        {ok, {_, Body}} ->
+            {ok, Body};
+        {error, {Error, StatusCode, StatusLine, Body, _Headers}} ->
+            {error, {Error, StatusCode, StatusLine, Body}};
+        {error, Reason} ->
+            {error, Reason}
+    end.
 
 param_list([], _Key) -> [];
 param_list(Values, Key) when is_tuple(Key) ->
@@ -222,22 +265,107 @@ format_timestamp({{Yr, Mo, Da}, {H, M, S}}) ->
       io_lib:format("~4.10.0b-~2.10.0b-~2.10.0bT~2.10.0b:~2.10.0b:~2.10.0bZ",
                     [Yr, Mo, Da, H, M, S])).
 
+%%%---------------------------------------------------------------------------
+-spec default_config() -> aws_config().
+%%%---------------------------------------------------------------------------
+%% @doc Generate a default config
+%%
+%% This function will generate a default configuration, using credentials
+%% available in the environment, if available.  If no credentials are
+%% available then this will just return a default <code>#aws_config{}</code>
+%% record.
+%%
 default_config() ->
     case get(aws_config) of
-        undefined ->
-            AccessKeyId = case os:getenv("AWS_ACCESS_KEY_ID") of
-                              false -> undefined;
-                              AKI -> AKI
-                          end,
-            SecretAccessKey = case os:getenv("AWS_SECRET_ACCESS_KEY") of
-                                  false -> undefined;
-                                  SAC -> SAC
-                              end,
-            #aws_config{access_key_id = AccessKeyId,
-                        secret_access_key = SecretAccessKey};
-        Config ->
-            Config
+        undefined -> default_config_env();
+        Config -> Config
     end.
+
+default_config_env() ->
+    case config_env() of
+        {ok, Config} -> Config;
+        {error, _} -> #aws_config{}
+    end.
+
+%%%---------------------------------------------------------------------------
+-spec auto_config() -> {ok, aws_config()} | undefined.
+%%%---------------------------------------------------------------------------
+%% @doc Generate config using the best available credentials
+%%
+%% This function will generate a valid <code>#aws_config{}</code> based on
+%% the best available credentials source in the current environment.  The
+%% following sources of credentials will be used, in order:
+%%
+%% <ol>
+%%   <li>Environment Variables
+%%     <p>An Id, Key and optionally Token, will be sourced from the
+%%     environment variables <code>AWS_ACCESS_KEY_ID</code>,
+%%     <code>AWS_SECRET_ACCESS_KEY</code> and
+%%     <code>AWS_SECURITY_TOKEN</code> respectively.  Both the Id and Key
+%%     values must be non-empty for this form of credentials to be considered
+%%     valid.</p>
+%%   </li>
+%%
+%%   <li>User Profile
+%%     <p>The default user profile credentials will be sourced using the
+%%     {@link profile/0} function, if available for the current user.</p>
+%%   </li>
+%%
+%%   <li>Host Metadata
+%%     <p>The credentials available via host metadata will be sourced, if
+%%     available.</p>
+%%   </li>
+%% </ol>
+%%
+%% If none of these credential sources are available, this function will
+%% return <code>undefined</code>.
+%%
+auto_config() ->
+    case config_env() of
+        {ok, _Config} = Result -> Result;
+        {error, _} -> auto_config_profile()
+    end.
+
+auto_config_profile() ->
+    case profile() of
+        {ok, _Config} = Result -> Result;
+        {error, _} -> auto_config_metadata()
+    end.
+
+auto_config_metadata() ->
+    case config_metadata() of
+        {ok, _Config} = Result -> Result;
+        {error, _} -> undefined
+    end.
+
+
+config_env() ->
+    case {os:getenv("AWS_ACCESS_KEY_ID"), os:getenv("AWS_SECRET_ACCESS_KEY"),
+          os:getenv("AWS_SECURITY_TOKEN")} of
+        {KeyId, Secret, T} when is_list(KeyId), is_list(Secret) ->
+            Token = if is_list(T) -> T; true -> undefined end,
+            Config = #aws_config{access_key_id = KeyId,
+                                 secret_access_key = Secret,
+                                 security_token = Token},
+            {ok, Config};
+        _ -> {error, environment_config_unavailable}
+    end.
+
+config_metadata() ->
+    Config = #aws_config{},
+    case get_metadata_credentials( Config ) of
+        {ok, #metadata_credentials{
+                access_key_id = Id,
+                secret_access_key = Secret,
+                security_token = Token,
+                expiration_gregorian_seconds = GregorianSecs}} ->
+            EpochTimeout = GregorianSecs - ?GREGORIAN_EPOCH_OFFSET,
+            {ok, Config#aws_config {
+                   access_key_id = Id, secret_access_key = Secret,
+                   security_token = Token, expiration = EpochTimeout }};
+        {error, _Reason} = Error -> Error
+    end.
+
 
 -spec update_config(aws_config()) -> {ok, aws_config()} | {error, term()}.
 update_config(#aws_config{access_key_id = KeyId} = Config)
@@ -316,6 +444,9 @@ service_config( <<"iam">>, _Region, Config ) -> Config;
 service_config( <<"kinesis">> = Service, Region, Config ) ->
     Host = service_host( Service, Region ),
     Config#aws_config{ kinesis_host = Host };
+service_config( <<"lambda">> = Service, Region, Config ) ->
+    Host = service_host( Service, Region ),
+    Config#aws_config{ lambda_host = Host };
 service_config( <<"mechanicalturk">>, _Region, Config ) -> Config;
 service_config( <<"rds">> = Service, Region, Config ) ->
     Host = service_host( Service, Region ),
@@ -384,6 +515,7 @@ get_metadata_credentials(Config) ->
             get_credentials_from_metadata(Config)
     end.
 
+timestamp_to_gregorian_seconds(undefined) -> undefined;
 timestamp_to_gregorian_seconds(Timestamp) ->
     {ok, [Yr, Mo, Da, H, M, S], []} = io_lib:fread("~d-~d-~dT~d:~d:~dZ", binary_to_list(Timestamp)),
     calendar:datetime_to_gregorian_seconds({{Yr, Mo, Da}, {H, M, S}}).
@@ -411,16 +543,34 @@ get_credentials_from_metadata(Config) ->
                     {error, Reason};
                 {ok, Json} ->
                     Creds = jsx:decode(Json),
-                    Record = #metadata_credentials
-                        {access_key_id = binary_to_list(proplists:get_value(<<"AccessKeyId">>, Creds)),
-                         secret_access_key = binary_to_list(proplists:get_value(<<"SecretAccessKey">>, Creds)),
-                         security_token = binary_to_list(proplists:get_value(<<"Token">>, Creds)),
-                         expiration_gregorian_seconds = timestamp_to_gregorian_seconds(
-                                                          proplists:get_value(<<"Expiration">>, Creds))},
-                    application:set_env(erlcloud, metadata_credentials, Record),
-                    {ok, Record}
+                    get_credentials_from_metadata_xform( Creds )
             end
     end.
+
+get_credentials_from_metadata_xform( Creds ) ->
+    case {prop_to_list_defined(<<"AccessKeyId">>, Creds),
+          prop_to_list_defined(<<"SecretAccessKey">>, Creds),
+          prop_to_list_defined(<<"Token">>, Creds),
+          timestamp_to_gregorian_seconds(
+            proplists:get_value(<<"Expiration">>, Creds))} of
+        {Id, Key, Token, GregorianExpire} when is_list(Id), is_list(Key),
+                                               is_list(Token),
+                                               is_integer(GregorianExpire) ->
+            Record = #metadata_credentials{
+                        access_key_id = Id, secret_access_key = Key,
+                        security_token = Token,
+                        expiration_gregorian_seconds = GregorianExpire },
+            application:set_env(erlcloud, metadata_credentials, Record),
+            {ok, Record};
+        _ -> {error, metadata_not_available}
+    end.
+
+prop_to_list_defined( Name, Props ) ->
+    case proplists:get_value( Name, Props ) of
+        undefined -> undefined;
+        Value when is_binary(Value) -> binary_to_list(Value)
+    end.
+
 
 port_to_str(Port) when is_integer(Port) ->
     integer_to_list(Port);
@@ -468,8 +618,9 @@ request_to_return(#aws_request{response_type = error,
                                error_type = aws,
                                response_status = Status,
                                response_status_line = StatusLine,
-                               response_body = Body}) ->
-    {error, {http_error, Status, StatusLine, Body}}.
+                               response_body = Body,
+                               response_headers = Headers}) ->
+    {error, {http_error, Status, StatusLine, Body, Headers}}.
 
 %% http://docs.aws.amazon.com/general/latest/gr/signature-version-4.html
 -spec sign_v4_headers(aws_config(), headers(), binary(), string(), string()) -> headers().
@@ -583,10 +734,10 @@ authorization(Config, CredentialScope, SignedHeaders, Signature) ->
 %%  2 - service disruption.
 -spec get_service_status(list(string())) -> ok | list().
 get_service_status(ServiceNames) when is_list(ServiceNames) ->
-    {ok, Json} = aws_request_form(get, "http", "status.aws.amazon.com", undefined, 
+    {ok, Json} = aws_request_form(get, "http", "status.aws.amazon.com", undefined,
         "/data.json", "", [], default_config()),
 
-    case get_filtered_statuses(ServiceNames, 
+    case get_filtered_statuses(ServiceNames,
             proplists:get_value(<<"current">>, jsx:decode(Json)))
     of
         [] -> ok;
@@ -605,9 +756,23 @@ get_filtered_statuses(ServiceNames, Statuses) ->
                         _ -> false
                     end
                 end,
-                ServiceNames)
+            ServiceNames)
         end,
-        Statuses).
+    Statuses).
+
+-spec is_throttling_error_response(aws_request()) -> true | false.
+is_throttling_error_response(RequestResponse) ->
+    #aws_request{
+         response_type = error,
+         error_type = aws,
+         response_body = RespBody} = RequestResponse,
+  
+    case binary:match(RespBody, <<"Throttling">>) of
+        nomatch ->
+            false;
+        _ ->
+            true
+    end.
 
 
 %%%---------------------------------------------------------------------------

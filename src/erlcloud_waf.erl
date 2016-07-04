@@ -1,8 +1,8 @@
 -module(erlcloud_waf).
 -author('pavel@alertlogic.com').
 
--include("erlcloud_aws.hrl").
--include("erlcloud_waf.hrl").
+-include_lib("erlcloud/include/erlcloud_aws.hrl").
+-include_lib("erlcloud/include/erlcloud_waf.hrl").
 
 %%% Library initialization.
 -export([configure/2, configure/3, configure/4, new/2, new/3, new/4]).
@@ -119,16 +119,18 @@ default_config() ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_CreateByteMatchSet.html
 %%%------------------------------------------------------------------------------
--spec create_byte_match_set(ChangeToken :: string() | binary(),
-                            Name :: string() | binary()) ->
-    waf_return_val().
+-spec create_byte_match_set/2 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary()) ->
+        waf_return_val().
 create_byte_match_set(ChangeToken, Name) ->
     create_byte_match_set(ChangeToken, Name, default_config()).
 
--spec create_byte_match_set(ChangeToken :: string() | binary(),
-                            Name :: string() | binary(),
-                            Config :: aws_config()) ->
-    waf_return_val().
+-spec create_byte_match_set/3 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 create_byte_match_set(ChangeToken, Name, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"Name">>, to_binary(Name)}],
@@ -140,16 +142,18 @@ create_byte_match_set(ChangeToken, Name, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_CreateIPSet.html
 %%%------------------------------------------------------------------------------
--spec create_ip_set(ChangeToken :: string() | binary(),
-                    Name :: string() | binary()) ->
-    waf_return_val().
+-spec create_ip_set/2 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary()) ->
+        waf_return_val().
 create_ip_set(ChangeToken, Name) ->
     create_ip_set(ChangeToken, Name, default_config()).
 
--spec create_ip_set(ChangeToken :: string() | binary(),
-                    Name :: string() | binary(),
-                    Config :: aws_config()) ->
-    waf_return_val().
+-spec create_ip_set/3 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 create_ip_set(ChangeToken, Name, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"Name">>, to_binary(Name)}],
@@ -161,18 +165,20 @@ create_ip_set(ChangeToken, Name, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_CreateRule.html
 %%%------------------------------------------------------------------------------
--spec create_rule(ChangeToken :: string() | binary(),
-                  Name :: string() | binary(),
-                  MetricName :: string() | binary()) ->
-    waf_return_val().
+-spec create_rule/3 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         MetricName :: string() | binary()) ->
+        waf_return_val().
 create_rule(ChangeToken, Name, MetricName) ->
     create_rule(ChangeToken, Name, MetricName, default_config()).
 
--spec create_rule(ChangeToken :: string() | binary(),
-                  Name :: string() | binary(),
-                  MetricName :: string() | binary(),
-                  Config :: aws_config()) ->
-    waf_return_val().
+-spec create_rule/4 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         MetricName :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 create_rule(ChangeToken, Name, MetricName, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"MetricName">>, to_binary(MetricName)},
@@ -185,16 +191,18 @@ create_rule(ChangeToken, Name, MetricName, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_CreateSizeConstraintSet.html
 %%%------------------------------------------------------------------------------
--spec create_size_constraint_set(ChangeToken :: string() | binary(),
-                                 Name :: string() | binary()) ->
-    waf_return_val().
+-spec create_size_constraint_set/2 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary()) ->
+        waf_return_val().
 create_size_constraint_set(ChangeToken, Name) ->
     create_size_constraint_set(ChangeToken, Name, default_config()).
 
--spec create_size_constraint_set(ChangeToken :: string() | binary(),
-                                 Name :: string() | binary(),
-                                 Config :: aws_config()) ->
-    waf_return_val().
+-spec create_size_constraint_set/3 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 create_size_constraint_set(ChangeToken, Name, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"Name">>, to_binary(Name)}],
@@ -206,16 +214,18 @@ create_size_constraint_set(ChangeToken, Name, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_CreateSqlInjectionMatchSet.html
 %%%------------------------------------------------------------------------------
--spec create_sql_injection_match_set(ChangeToken :: string() | binary(),
-                                     Name :: string() | binary()) ->
-    waf_return_val().
+-spec create_sql_injection_match_set/2 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary()) ->
+        waf_return_val().
 create_sql_injection_match_set(ChangeToken, Name) ->
     create_sql_injection_match_set(ChangeToken, Name, default_config()).
 
--spec create_sql_injection_match_set(ChangeToken :: string() | binary(),
-                                     Name :: string() | binary(),
-                                     Config :: aws_config()) ->
-    waf_return_val().
+-spec create_sql_injection_match_set/3 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 create_sql_injection_match_set(ChangeToken, Name, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"Name">>, to_binary(Name)}],
@@ -227,20 +237,22 @@ create_sql_injection_match_set(ChangeToken, Name, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html
 %%%------------------------------------------------------------------------------
--spec create_web_acl(ChangeToken :: string() | binary(),
-                     Name :: string() | binary(),
-                     MetricName :: string() | binary(),
-                     DefaultAction:: waf_acl_action_type()) ->
-    waf_return_val().
+-spec create_web_acl/4 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         MetricName :: string() | binary(),
+         DefaultAction:: waf_acl_action_type()) ->
+        waf_return_val().
 create_web_acl(ChangeToken, Name, MetricName, DefaultAction) ->
     create_web_acl(ChangeToken, Name, MetricName, DefaultAction, default_config()).
 
--spec create_web_acl(ChangeToken :: string() | binary(),
-                     Name :: string() | binary(),
-                     MetricName :: string() | binary(),
-                     DefaultAction:: waf_acl_action_type(),
-                     Config :: aws_config()) ->
-    waf_return_val().
+-spec create_web_acl/5 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         MetricName :: string() | binary(),
+         DefaultAction:: waf_acl_action_type(),
+         Config :: aws_config()) ->
+        waf_return_val().
 create_web_acl(ChangeToken, Name, MetricName, DefaultAction, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"DefaultAction">>, [{<<"Type">>, get_default_action_type(DefaultAction)}]},
@@ -253,16 +265,18 @@ create_web_acl(ChangeToken, Name, MetricName, DefaultAction, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_CreateXssMatchSet.html
 %%%------------------------------------------------------------------------------
--spec create_xss_match_set(ChangeToken :: string() | binary(),
-                           Name :: string() | binary()) ->
-    waf_return_val().
+-spec create_xss_match_set/2 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary()) ->
+        waf_return_val().
 create_xss_match_set(ChangeToken, Name) ->
     create_xss_match_set(ChangeToken, Name, default_config()).
 
--spec create_xss_match_set(ChangeToken :: string() | binary(),
-                           Name :: string() | binary(),
-                           Config :: aws_config()) ->
-    waf_return_val().
+-spec create_xss_match_set/3 ::
+        (ChangeToken :: string() | binary(),
+         Name :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 create_xss_match_set(ChangeToken, Name, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"Name">>, to_binary(Name)}],
@@ -275,16 +289,18 @@ create_xss_match_set(ChangeToken, Name, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_DeleteByteMatchSet.html
 %%%------------------------------------------------------------------------------
--spec delete_byte_match_set(ChangeToken :: string() | binary(),
-                            ByteMatchSetId :: string() | binary()) ->
-    waf_return_val().
+-spec delete_byte_match_set/2 ::
+        (ChangeToken :: string() | binary(),
+         ByteMatchSetId :: string() | binary()) ->
+        waf_return_val().
 delete_byte_match_set(ChangeToken, ByteMatchSetId) ->
     delete_byte_match_set(ChangeToken, ByteMatchSetId, default_config()).
 
--spec delete_byte_match_set(ChangeToken:: string() | binary(),
-                            ByteMatchSetId :: string() | binary(),
-                            Config :: aws_config()) ->
-    waf_return_val().
+-spec delete_byte_match_set/3 ::
+        (ChangeToken:: string() | binary(),
+         ByteMatchSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 delete_byte_match_set(ChangeToken, ByteMatchSetId, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"ByteMatchSetId">>, to_binary(ByteMatchSetId)}],
@@ -296,16 +312,18 @@ delete_byte_match_set(ChangeToken, ByteMatchSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_DeleteIPSet.html
 %%%------------------------------------------------------------------------------
--spec delete_ip_set(ChangeToken :: string() | binary(),
-                    IPSetId :: string() | binary()) ->
-    waf_return_val().
+-spec delete_ip_set/2 ::
+        (ChangeToken :: string() | binary(),
+         IPSetId :: string() | binary()) ->
+        waf_return_val().
 delete_ip_set(ChangeToken, IPSetId) ->
     delete_ip_set(ChangeToken, IPSetId, default_config()).
 
--spec delete_ip_set(ChangeToken:: string() | binary(),
-                    IPSetId :: string() | binary(),
-                    Config :: aws_config()) ->
-    waf_return_val().
+-spec delete_ip_set/3 ::
+        (ChangeToken:: string() | binary(),
+         IPSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 delete_ip_set(ChangeToken, IPSetId, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"IPSetId">>, to_binary(IPSetId)}],
@@ -317,16 +335,18 @@ delete_ip_set(ChangeToken, IPSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_DeleteRule.html
 %%%------------------------------------------------------------------------------
--spec delete_rule(ChangeToken :: string() | binary(),
-                  RuleId :: string() | binary()) ->
-    waf_return_val().
+-spec delete_rule/2 ::
+        (ChangeToken :: string() | binary(),
+         RuleId :: string() | binary()) ->
+        waf_return_val().
 delete_rule(ChangeToken, RuleId) ->
     delete_rule(ChangeToken, RuleId, default_config()).
 
--spec delete_rule(ChangeToken:: string() | binary(),
-                  RuleId :: string() | binary(),
-                  Config :: aws_config()) ->
-    waf_return_val().
+-spec delete_rule/3 ::
+        (ChangeToken:: string() | binary(),
+         RuleId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 delete_rule(ChangeToken, RuleId, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"RuleId">>, to_binary(RuleId)}],
@@ -338,16 +358,18 @@ delete_rule(ChangeToken, RuleId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_DeleteSizeConstraintSet.html
 %%%------------------------------------------------------------------------------
--spec delete_size_constraint_set(ChangeToken :: string() | binary(),
-                                 SizeConstraintSetId :: string() | binary()) ->
-    waf_return_val().
+-spec delete_size_constraint_set/2 ::
+        (ChangeToken :: string() | binary(),
+         SizeConstraintSetId :: string() | binary()) ->
+        waf_return_val().
 delete_size_constraint_set(ChangeToken, SizeConstraintSetId) ->
     delete_size_constraint_set(ChangeToken, SizeConstraintSetId, default_config()).
 
--spec delete_size_constraint_set(ChangeToken:: string() | binary(),
-                                 SizeConstraintSetId :: string() | binary(),
-                                 Config :: aws_config()) ->
-    waf_return_val().
+-spec delete_size_constraint_set/3 ::
+        (ChangeToken:: string() | binary(),
+         SizeConstraintSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 delete_size_constraint_set(ChangeToken, SizeConstraintSetId, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"SizeConstraintSetId">>, to_binary(SizeConstraintSetId)}],
@@ -359,18 +381,18 @@ delete_size_constraint_set(ChangeToken, SizeConstraintSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_DeleteSqlInjectionMatchSet.html
 %%%------------------------------------------------------------------------------
--spec delete_sql_injection_match_set(ChangeToken :: string() | binary(),
-                                     SqlInjectionMatchSetId ::
-                                         string() | binary()) ->
-    waf_return_val().
+-spec delete_sql_injection_match_set/2 ::
+        (ChangeToken :: string() | binary(),
+         SqlInjectionMatchSetId :: string() | binary()) ->
+        waf_return_val().
 delete_sql_injection_match_set(ChangeToken, SqlInjectionMatchSetId) ->
     delete_sql_injection_match_set(ChangeToken, SqlInjectionMatchSetId, default_config()).
 
--spec delete_sql_injection_match_set(ChangeToken:: string() | binary(),
-                                     SqlInjectionMatchSetId ::
-                                         string() | binary(),
-                                     Config :: aws_config()) ->
-    waf_return_val().
+-spec delete_sql_injection_match_set/3 ::
+        (ChangeToken:: string() | binary(),
+         SqlInjectionMatchSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 delete_sql_injection_match_set(ChangeToken, SqlInjectionMatchSetId, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)}, 
             {<<"SqlInjectionMatchSetId">>, to_binary(SqlInjectionMatchSetId)}],
@@ -381,16 +403,18 @@ delete_sql_injection_match_set(ChangeToken, SqlInjectionMatchSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_DeleteWebACL.html
 %%%------------------------------------------------------------------------------
--spec delete_web_acl(ChangeToken :: string() | binary(),
-                     WebACLId :: string() | binary()) ->
-    waf_return_val().
+-spec delete_web_acl/2 ::
+        (ChangeToken :: string() | binary(),
+         WebACLId :: string() | binary()) ->
+        waf_return_val().
 delete_web_acl(ChangeToken, WebACLId) ->
     delete_web_acl(ChangeToken, WebACLId, default_config()).
 
--spec delete_web_acl(ChangeToken:: string() | binary(),
-                     WebACLId :: string() | binary(),
-                     Config :: aws_config()) ->
-    waf_return_val().
+-spec delete_web_acl/3 ::
+        (ChangeToken:: string() | binary(),
+         WebACLId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 delete_web_acl(ChangeToken, WebACLId, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)}, 
             {<<"WebACLId">>, to_binary(WebACLId)}],
@@ -402,16 +426,18 @@ delete_web_acl(ChangeToken, WebACLId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_DeleteXssMatchSet.html
 %%%------------------------------------------------------------------------------
--spec delete_xss_match_set(ChangeToken :: string() | binary(),
-                           XssMatchSetId :: string() | binary()) ->
-    waf_return_val().
+-spec delete_xss_match_set/2 ::
+        (ChangeToken :: string() | binary(),
+         XssMatchSetId :: string() | binary()) ->
+        waf_return_val().
 delete_xss_match_set(ChangeToken, XssMatchSetId) ->
     delete_xss_match_set(ChangeToken, XssMatchSetId, default_config()).
 
--spec delete_xss_match_set(ChangeToken:: string() | binary(),
-                           XssMatchSetId :: string() | binary(),
-                           Config :: aws_config()) ->
-    waf_return_val().
+-spec delete_xss_match_set/3 ::
+        (ChangeToken:: string() | binary(),
+         XssMatchSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 delete_xss_match_set(ChangeToken, XssMatchSetId, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"XssMatchSetId">>, to_binary(XssMatchSetId)}],
@@ -422,14 +448,16 @@ delete_xss_match_set(ChangeToken, XssMatchSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetByteMatchSet.html
 %%%------------------------------------------------------------------------------
--spec get_byte_match_set(ByteMatchSetId :: string() | binary()) ->
-    waf_return_val().
+-spec get_byte_match_set/1 ::
+        (ByteMatchSetId :: string() | binary()) ->
+        waf_return_val().
 get_byte_match_set(ByteMatchSetId) ->
     get_byte_match_set(ByteMatchSetId, default_config()).
 
--spec get_byte_match_set(ByteMatchSetId:: string() | binary(),
-                         Config :: aws_config()) ->
-    waf_return_val().
+-spec get_byte_match_set/2 ::
+        (ByteMatchSetId:: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_byte_match_set(ByteMatchSetId, Config) ->
     Json = [{<<"ByteMatchSetId">>, to_binary(ByteMatchSetId)}],
     waf_request(Config, "GetByteMatchSet", Json).
@@ -440,11 +468,15 @@ get_byte_match_set(ByteMatchSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetChangeToken.html
 %%%------------------------------------------------------------------------------
--spec get_change_token() -> waf_return_val().
+-spec get_change_token/0 ::
+        () ->
+        waf_return_val().
 get_change_token() ->
     get_change_token(default_config()).
 
--spec get_change_token(Config :: aws_config()) -> waf_return_val().
+-spec get_change_token/1 ::
+        (Config :: aws_config()) ->
+        waf_return_val().
 get_change_token(Config) ->
     waf_request(Config, "GetChangeToken", []).
 
@@ -454,14 +486,16 @@ get_change_token(Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetChangeTokenStatus.html
 %%%------------------------------------------------------------------------------
--spec get_change_token_status(ChangeToken :: string() | binary()) ->
-    waf_return_val().
+-spec get_change_token_status/1 ::
+        (ChangeToken :: string() | binary()) ->
+        waf_return_val().
 get_change_token_status(ChangeToken) ->
     get_change_token_status(ChangeToken, default_config()).
 
--spec get_change_token_status(ChangeToken:: string() | binary(),
-                              Config :: aws_config()) ->
-    waf_return_val().
+-spec get_change_token_status/2 ::
+        (ChangeToken:: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_change_token_status(ChangeToken, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)}],
     waf_request(Config, "GetChangeTokenStatus", Json).
@@ -472,14 +506,16 @@ get_change_token_status(ChangeToken, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetIPSet.html
 %%%------------------------------------------------------------------------------
--spec get_ip_set(IPSetId :: string() | binary()) ->
-    waf_return_val().
+-spec get_ip_set/1 ::
+        (IPSetId :: string() | binary()) ->
+        waf_return_val().
 get_ip_set(IPSetId) ->
     get_ip_set(IPSetId, default_config()).
 
--spec get_ip_set(IPSetId :: string() | binary(),
-                 Config :: aws_config()) ->
-    waf_return_val().
+-spec get_ip_set/2 ::
+        (IPSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_ip_set(IPSetId, Config) ->
     Json = [{<<"IPSetId">>, to_binary(IPSetId)}],
     waf_request(Config, "GetIPSet", Json).
@@ -490,14 +526,16 @@ get_ip_set(IPSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetRule.html
 %%%------------------------------------------------------------------------------
--spec get_rule(RuleId :: string() | binary()) ->
-    waf_return_val().
+-spec get_rule/1 ::
+        (RuleId :: string() | binary()) ->
+        waf_return_val().
 get_rule(RuleId) ->
     get_rule(RuleId, default_config()).
 
--spec get_rule(RuleId :: string() | binary(),
-               Config :: aws_config()) ->
-    waf_return_val().
+-spec get_rule/2 ::
+        (RuleId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_rule(RuleId, Config) ->
     Json = [{<<"RuleId">>, to_binary(RuleId)}],
     waf_request(Config, "GetRule", Json).
@@ -508,22 +546,24 @@ get_rule(RuleId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetSampledRequests.html
 %%%------------------------------------------------------------------------------
--spec get_sampled_requests(WebAclId :: string() | binary(),
-                           RuleId :: string() | binary(),
-                           StartTime :: pos_integer(),
-                           EndTime :: pos_integer(),
-                           MaxItems :: 1..100) ->
-    waf_return_val().
+-spec get_sampled_requests/5 ::
+        (WebAclId :: string() | binary(),
+         RuleId :: string() | binary(),
+         StartTime :: pos_integer(),
+         EndTime :: pos_integer(),
+         MaxItems :: 1..100) ->
+        waf_return_val().
 get_sampled_requests(WebAclId, RuleId, StartTime, EndTime, MaxItems) ->
     get_sampled_requests(WebAclId, RuleId, StartTime, EndTime, MaxItems, default_config()).
 
--spec get_sampled_requests(WebAclId :: string() | binary(),
-                           RuleId :: string() | binary(),
-                           StartTime :: pos_integer(),
-                           EndTime :: pos_integer(),
-                           MaxItems :: 1..100,
-                           Config :: aws_config()) ->
-    waf_return_val().
+-spec get_sampled_requests/6 ::
+        (WebAclId :: string() | binary(),
+         RuleId :: string() | binary(),
+         StartTime :: pos_integer(),
+         EndTime :: pos_integer(),
+         MaxItems :: 1..100,
+         Config :: aws_config()) ->
+        waf_return_val().
 get_sampled_requests(WebAclId, RuleId, StartTime, EndTime, MaxItems, Config) when is_integer(MaxItems) ->
     Json = [{<<"MaxItems">>, MaxItems},
             {<<"RuleId">>, to_binary(RuleId)},
@@ -537,14 +577,16 @@ get_sampled_requests(WebAclId, RuleId, StartTime, EndTime, MaxItems, Config) whe
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetSizeConstraintSet.html
 %%%------------------------------------------------------------------------------
--spec get_size_constraint_set(SizeConstraintSetId :: string() | binary()) ->
-    waf_return_val().
+-spec get_size_constraint_set/1 ::
+        (SizeConstraintSetId :: string() | binary()) ->
+        waf_return_val().
 get_size_constraint_set(SizeConstraintSetId) ->
     get_size_constraint_set(SizeConstraintSetId, default_config()).
 
--spec get_size_constraint_set(SizeConstraintSetId :: string() | binary(),
-                              Config :: aws_config()) ->
-    waf_return_val().
+-spec get_size_constraint_set/2 ::
+        (SizeConstraintSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_size_constraint_set(SizeConstraintSetId, Config) ->
     Json = [{<<"SizeConstraintSetId">>, to_binary(SizeConstraintSetId)}],
     waf_request(Config, "GetSizeConstraintSet", Json).
@@ -555,16 +597,16 @@ get_size_constraint_set(SizeConstraintSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetSqlInjectionMatchSet.html
 %%%------------------------------------------------------------------------------
--spec get_sql_injection_match_set(SqlInjectionMatchSetId ::
-                                      string() | binary()) ->
-    waf_return_val().
+-spec get_sql_injection_match_set/1 ::
+        (SqlInjectionMatchSetId :: string() | binary()) ->
+        waf_return_val().
 get_sql_injection_match_set(SqlInjectionMatchSetId) ->
     get_sql_injection_match_set(SqlInjectionMatchSetId, default_config()).
 
--spec get_sql_injection_match_set(SqlInjectionMatchSetId ::
-                                      string() | binary(),
-                                  Config :: aws_config()) ->
-    waf_return_val().
+-spec get_sql_injection_match_set/2 ::
+        (SqlInjectionMatchSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_sql_injection_match_set(SqlInjectionMatchSetId, Config) ->
     Json = [{<<"SqlInjectionMatchSetId">>, to_binary(SqlInjectionMatchSetId)}],
     waf_request(Config, "GetSqlInjectionMatchSet", Json).
@@ -575,14 +617,16 @@ get_sql_injection_match_set(SqlInjectionMatchSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetWebACL.html
 %%%------------------------------------------------------------------------------
--spec get_web_acl(WebACLId :: string() | binary()) ->
-    waf_return_val().
+-spec get_web_acl/1 ::
+        (WebACLId :: string() | binary()) ->
+        waf_return_val().
 get_web_acl(WebACLId) ->
     get_web_acl(WebACLId, default_config()).
 
--spec get_web_acl(WebACLId :: string() | binary(),
-                  Config :: aws_config()) ->
-    waf_return_val().
+-spec get_web_acl/2 ::
+        (WebACLId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_web_acl(WebACLId, Config) ->
     Json = [{<<"WebACLId">>, to_binary(WebACLId)}],
     waf_request(Config, "GetWebACL", Json).
@@ -593,14 +637,16 @@ get_web_acl(WebACLId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_GetXssMatchSet.html
 %%%------------------------------------------------------------------------------
--spec get_xss_match_set(XssMatchSetId :: string() | binary()) ->
-    waf_return_val().
+-spec get_xss_match_set/1 ::
+        (XssMatchSetId :: string() | binary()) ->
+        waf_return_val().
 get_xss_match_set(XssMatchSetId) ->
     get_xss_match_set(XssMatchSetId, default_config()).
 
--spec get_xss_match_set(XssMatchSetId :: string() | binary(),
-                        Config :: aws_config()) ->
-    waf_return_val().
+-spec get_xss_match_set/2 ::
+        (XssMatchSetId :: string() | binary(),
+         Config :: aws_config()) ->
+        waf_return_val().
 get_xss_match_set(XssMatchSetId, Config) ->
     Json = [{<<"XssMatchSetId">>, to_binary(XssMatchSetId)}],
     waf_request(Config, "GetXssMatchSet", Json).
@@ -612,17 +658,22 @@ get_xss_match_set(XssMatchSetId, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_ListByteMatchSets.html
 %%%------------------------------------------------------------------------------
--spec list_byte_match_sets() -> waf_return_val().
+-spec list_byte_match_sets/0 ::
+        () ->
+       waf_return_val().
 list_byte_match_sets() ->
     list_byte_match_sets(?LIMIT_MAX, default_config()).
 
--spec list_byte_match_sets(Limit :: 1..100) -> waf_return_val().
+-spec list_byte_match_sets/1 ::
+       (Limit :: 1..100) ->
+       waf_return_val().
 list_byte_match_sets(Limit) when is_integer(Limit) ->
     list_byte_match_sets(Limit, default_config()).
 
--spec list_byte_match_sets(Limit :: 1..100,
-                           binary() | aws_config()) ->
-    waf_return_val().
+-spec list_byte_match_sets/2 ::
+       (Limit :: 1..100,
+        binary() | aws_config()) ->
+       waf_return_val().
 list_byte_match_sets(Limit, NextMarker) when is_binary(NextMarker) ->
     list_byte_match_sets(Limit, NextMarker, default_config());
 
@@ -630,10 +681,11 @@ list_byte_match_sets(Limit, Config) when is_integer(Limit), is_record(Config, aw
     Json = [{<<"Limit">>, Limit}],
     waf_request(Config, "ListByteMatchSets", Json).
 
--spec list_byte_match_sets(Limit :: 1..100,
-                           NextMarker :: binary(),
-                           Config :: aws_config()) ->
-    waf_return_val().
+-spec list_byte_match_sets/3 ::
+       (Limit :: 1..100,
+        NextMarker :: binary(),
+        Config :: aws_config()) ->
+       waf_return_val().
 list_byte_match_sets(Limit, NextMarker, Config) when is_integer(Limit), is_binary(NextMarker) ->
     Json = [{<<"Limit">>, Limit},
             {<<"NextMarker">>, NextMarker}],
@@ -645,17 +697,22 @@ list_byte_match_sets(Limit, NextMarker, Config) when is_integer(Limit), is_binar
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_ListIPSets.html
 %%%------------------------------------------------------------------------------
--spec list_ip_sets() -> waf_return_val().
+-spec list_ip_sets/0 ::
+        () ->
+       waf_return_val().
 list_ip_sets() ->
     list_ip_sets(?LIMIT_MAX, default_config()).
 
--spec list_ip_sets(Limit :: 1..100) -> waf_return_val().
+-spec list_ip_sets/1 ::
+       (Limit :: 1..100) ->
+       waf_return_val().
 list_ip_sets(Limit) when is_integer(Limit) ->
     list_ip_sets(Limit, default_config()).
 
--spec list_ip_sets(Limit :: 1..100,
-                   binary() | aws_config()) ->
-    waf_return_val().
+-spec list_ip_sets/2 ::
+       (Limit :: 1..100,
+        binary() | aws_config()) ->
+       waf_return_val().
 list_ip_sets(Limit, NextMarker) when is_binary(NextMarker) ->
     list_ip_sets(Limit, NextMarker, default_config());
 
@@ -663,10 +720,11 @@ list_ip_sets(Limit, Config) when is_integer(Limit), is_record(Config, aws_config
     Json = [{<<"Limit">>, Limit}],
     waf_request(Config, "ListIPSets", Json).
 
--spec list_ip_sets(Limit :: 1..100,
-                   NextMarker :: binary(),
-                   Config :: aws_config()) ->
-    waf_return_val().
+-spec list_ip_sets/3 ::
+       (Limit :: 1..100,
+        NextMarker :: binary(),
+        Config :: aws_config()) ->
+       waf_return_val().
 list_ip_sets(Limit, NextMarker, Config) when is_integer(Limit), is_binary(NextMarker) ->
     Json = [{<<"Limit">>, Limit},
             {<<"NextMarker">>, NextMarker}],
@@ -678,17 +736,22 @@ list_ip_sets(Limit, NextMarker, Config) when is_integer(Limit), is_binary(NextMa
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_ListRules.html
 %%%------------------------------------------------------------------------------
--spec list_rules() -> waf_return_val().
+-spec list_rules/0 ::
+        () ->
+       waf_return_val().
 list_rules() ->
     list_rules(?LIMIT_MAX, default_config()).
 
--spec list_rules(Limit :: 1..100) -> waf_return_val().
+-spec list_rules/1 ::
+       (Limit :: 1..100) ->
+       waf_return_val().
 list_rules(Limit) when Limit > 0, Limit =< 100 ->
     list_rules(Limit, default_config()).
 
--spec list_rules(Limit :: 1..100,
-                 binary() | aws_config()) ->
-    waf_return_val().
+-spec list_rules/2 ::
+       (Limit :: 1..100,
+        binary() | aws_config()) ->
+       waf_return_val().
 list_rules(Limit, NextMarker) when is_binary(NextMarker) ->
     list_rules(Limit, NextMarker, default_config());
 
@@ -696,10 +759,11 @@ list_rules(Limit, Config) when is_integer(Limit), is_record(Config, aws_config) 
     Json = [{<<"Limit">>, Limit}],
     waf_request(Config, "ListRules", Json).
 
--spec list_rules(Limit :: 1..100,
-                 NextMarker :: binary(),
-                 Config :: aws_config()) ->
-    waf_return_val().
+-spec list_rules/3 ::
+       (Limit :: 1..100,
+        NextMarker :: binary(),
+        Config :: aws_config()) ->
+       waf_return_val().
 list_rules(Limit, NextMarker, Config) when is_integer(Limit) ->
     Json = [{<<"Limit">>, Limit},
             {<<"NextMarker">>, NextMarker}],
@@ -711,18 +775,22 @@ list_rules(Limit, NextMarker, Config) when is_integer(Limit) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_ListSizeConstraintSets.html
 %%%------------------------------------------------------------------------------
--spec list_size_constraint_sets() -> waf_return_val().
+-spec list_size_constraint_sets/0 ::
+        () ->
+       waf_return_val().
 list_size_constraint_sets() ->
     list_size_constraint_sets(?LIMIT_MAX, default_config()).
 
--spec list_size_constraint_sets(Limit :: 1..100) ->
-    waf_return_val().
+-spec list_size_constraint_sets/1 ::
+       (Limit :: 1..100) ->
+       waf_return_val().
 list_size_constraint_sets(Limit) when is_integer(Limit) ->
     list_size_constraint_sets(Limit, default_config()).
 
--spec list_size_constraint_sets(Limit :: 1..100,
-                                binary() | aws_config()) ->
-    waf_return_val().
+-spec list_size_constraint_sets/2 ::
+       (Limit :: 1..100,
+        binary() | aws_config()) ->
+       waf_return_val().
 list_size_constraint_sets(Limit, NextMarker) when is_binary(NextMarker) ->
     list_size_constraint_sets(Limit, NextMarker, default_config());
 
@@ -730,10 +798,11 @@ list_size_constraint_sets(Limit, Config) when is_integer(Limit), is_record(Confi
     Json = [{<<"Limit">>, Limit}],
     waf_request(Config, "ListSizeConstraintSets", Json).
 
--spec list_size_constraint_sets(Limit :: 1..100,
-                                NextMarker :: binary(),
-                                Config :: aws_config()) ->
-    waf_return_val().
+-spec list_size_constraint_sets/3 ::
+       (Limit :: 1..100,
+        NextMarker :: binary(),
+        Config :: aws_config()) ->
+       waf_return_val().
 list_size_constraint_sets(Limit, NextMarker, Config) when is_integer(Limit) ->
     Json = [{<<"Limit">>, Limit},
             {<<"NextMarker">>, NextMarker}],
@@ -745,19 +814,22 @@ list_size_constraint_sets(Limit, NextMarker, Config) when is_integer(Limit) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_ListSqlInjectionMatchSets.html
 %%%------------------------------------------------------------------------------
--spec list_sql_injection_match_sets() ->
-    waf_return_val().
+-spec list_sql_injection_match_sets/0 ::
+        () ->
+       waf_return_val().
 list_sql_injection_match_sets() ->
     list_sql_injection_match_sets(?LIMIT_MAX, default_config()).
 
--spec list_sql_injection_match_sets(Limit :: 1..100) ->
-    waf_return_val().
+-spec list_sql_injection_match_sets/1 ::
+       (Limit :: 1..100) ->
+       waf_return_val().
 list_sql_injection_match_sets(Limit) when is_integer(Limit) ->
     list_sql_injection_match_sets(Limit, default_config()).
 
--spec list_sql_injection_match_sets(Limit :: 1..100,
-                                    binary() | aws_config()) ->
-    waf_return_val().
+-spec list_sql_injection_match_sets/2 ::
+       (Limit :: 1..100,
+        binary() | aws_config()) ->
+       waf_return_val().
 list_sql_injection_match_sets(Limit, NextMarker) when is_binary(NextMarker) ->
     list_sql_injection_match_sets(Limit, NextMarker, default_config());
 
@@ -765,10 +837,11 @@ list_sql_injection_match_sets(Limit, Config) when is_integer(Limit), is_record(C
     Json = [{<<"Limit">>, Limit}],
     waf_request(Config, "ListSqlInjectionMatchSets", Json).
 
--spec list_sql_injection_match_sets(Limit :: 1..100,
-                                    NextMarker :: binary(),
-                                    Config :: aws_config()) ->
-    waf_return_val().
+-spec list_sql_injection_match_sets/3 ::
+       (Limit :: 1..100,
+        NextMarker :: binary(),
+        Config :: aws_config()) ->
+       waf_return_val().
 list_sql_injection_match_sets(Limit, NextMarker, Config) when is_integer(Limit) ->
     Json = [{<<"Limit">>, Limit},
             {<<"NextMarker">>, NextMarker}],
@@ -780,17 +853,22 @@ list_sql_injection_match_sets(Limit, NextMarker, Config) when is_integer(Limit) 
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_ListWebACLs.html
 %%%------------------------------------------------------------------------------
--spec list_web_acls() -> waf_return_val().
+-spec list_web_acls/0 ::
+        () ->
+       waf_return_val().
 list_web_acls() ->
     list_web_acls(?LIMIT_MAX, default_config()).
 
--spec list_web_acls(Limit :: 1..100) -> waf_return_val().
+-spec list_web_acls/1 ::
+       (Limit :: 1..100) ->
+       waf_return_val().
 list_web_acls(Limit) when is_integer(Limit) ->
     list_web_acls(Limit, default_config()).
 
--spec list_web_acls(Limit :: 1..100,
-                    binary() | aws_config()) ->
-    waf_return_val().
+-spec list_web_acls/2 ::
+       (Limit :: 1..100,
+        binary() | aws_config()) ->
+       waf_return_val().
 list_web_acls(Limit, NextMarker) when is_binary(NextMarker) ->
     list_web_acls(Limit, NextMarker, default_config());
 
@@ -798,10 +876,11 @@ list_web_acls(Limit, Config) when is_integer(Limit), is_record(Config, aws_confi
     Json = [{<<"Limit">>, Limit}],
     waf_request(Config, "ListWebACLs", Json).
 
--spec list_web_acls(Limit :: 1..100,
-                    NextMarker :: binary(),
-                    Config :: aws_config()) ->
-    waf_return_val().
+-spec list_web_acls/3 ::
+       (Limit :: 1..100,
+        NextMarker :: binary(),
+        Config :: aws_config()) ->
+       waf_return_val().
 list_web_acls(Limit, NextMarker, Config) when is_integer(Limit) ->
     Json = [{<<"Limit">>, Limit},
             {<<"NextMarker">>, NextMarker}],
@@ -813,18 +892,23 @@ list_web_acls(Limit, NextMarker, Config) when is_integer(Limit) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_ListXssMatchSets.html
 %%%------------------------------------------------------------------------------
--spec list_xss_match_sets() -> waf_return_val().
+-spec list_xss_match_sets/0 ::
+        () ->
+       waf_return_val().
 list_xss_match_sets() ->
     list_xss_match_sets(?LIMIT_MAX, default_config()).
 
 
--spec list_xss_match_sets(Limit :: 1..100) -> waf_return_val().
+-spec list_xss_match_sets/1 ::
+       (Limit :: 1..100) ->
+       waf_return_val().
 list_xss_match_sets(Limit) when is_integer(Limit) ->
     list_xss_match_sets(Limit, default_config()).
 
--spec list_xss_match_sets(Limit :: 1..100,
-                          binary() | aws_config()) ->
-    waf_return_val().
+-spec list_xss_match_sets/2 ::
+       (Limit :: 1..100,
+        binary() | aws_config()) ->
+       waf_return_val().
 list_xss_match_sets(Limit, NextMarker) when is_binary(NextMarker) ->
     list_xss_match_sets(Limit, NextMarker, default_config());
 
@@ -832,10 +916,11 @@ list_xss_match_sets(Limit, Config) when is_integer(Limit), is_record(Config, aws
     Json = [{<<"Limit">>, Limit}],
     waf_request(Config, "ListXssMatchSets", Json).
 
--spec list_xss_match_sets(Limit :: 1..100,
-                          NextMarker :: binary(),
-                          Config :: aws_config()) ->
-    waf_return_val().
+-spec list_xss_match_sets/3 ::
+       (Limit :: 1..100,
+        NextMarker :: binary(),
+        Config :: aws_config()) ->
+       waf_return_val().
 list_xss_match_sets(Limit, NextMarker, Config) when is_integer(Limit) ->
     Json = [{<<"Limit">>, Limit},
             {<<"NextMarker">>, NextMarker}],
@@ -847,18 +932,20 @@ list_xss_match_sets(Limit, NextMarker, Config) when is_integer(Limit) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_UpdateByteMatchSet.html
 %%%------------------------------------------------------------------------------
--spec update_byte_match_set(ChangeToken :: string() | binary(),
-                            ByteMatchSetId :: string() | binary(),
-                            Updates :: [waf_byte_match_set_update()]) ->
-    waf_return_val().
+-spec update_byte_match_set/3 ::
+       (ChangeToken :: string() | binary(),
+        ByteMatchSetId :: string() | binary(),
+        Updates :: [waf_byte_match_set_update()]) ->
+       waf_return_val().
 update_byte_match_set(ChangeToken, ByteMatchSetId, Updates) ->
     update_byte_match_set(ChangeToken, ByteMatchSetId, Updates, default_config()).
 
--spec update_byte_match_set(ChangeToken :: string() | binary(),
-                            ByteMatchSetId :: string() | binary(),
-                            Updates :: [waf_byte_match_set_update()],
-                            Config :: aws_config()) ->
-    waf_return_val().
+-spec update_byte_match_set/4 ::
+       (ChangeToken :: string() | binary(),
+        ByteMatchSetId :: string() | binary(),
+        Updates :: [waf_byte_match_set_update()],
+        Config :: aws_config()) ->
+       waf_return_val().
 update_byte_match_set(ChangeToken, ByteMatchSetId, Updates, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"ByteMatchSetId">>, to_binary(ByteMatchSetId)},
@@ -871,18 +958,20 @@ update_byte_match_set(ChangeToken, ByteMatchSetId, Updates, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_UpdateIPSet.html
 %%%------------------------------------------------------------------------------
--spec update_ip_set(ChangeToken :: string() | binary(),
-                    IPSetId :: string() | binary(),
-                    Updates :: [waf_ip_set_update()]) ->
-    waf_return_val().
+-spec update_ip_set/3 ::
+       (ChangeToken :: string() | binary(),
+        IPSetId :: string() | binary(),
+        Updates :: [waf_ip_set_update()]) ->
+       waf_return_val().
 update_ip_set(ChangeToken, IPSetId, Updates) ->
     update_ip_set(ChangeToken, IPSetId, Updates, default_config()).
 
--spec update_ip_set(ChangeToken :: string() | binary(),
-                    IPSetId :: string() | binary(),
-                    Updates :: [waf_ip_set_update()],
-                    Config :: aws_config()) ->
-    waf_return_val().
+-spec update_ip_set/4 ::
+       (ChangeToken :: string() | binary(),
+        IPSetId :: string() | binary(),
+        Updates :: [waf_ip_set_update()],
+        Config :: aws_config()) ->
+       waf_return_val().
 update_ip_set(ChangeToken, IPSetId, Updates, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"IPSetId">>, to_binary(IPSetId)},
@@ -895,18 +984,20 @@ update_ip_set(ChangeToken, IPSetId, Updates, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_UpdateRule.html
 %%%------------------------------------------------------------------------------
--spec update_rule(ChangeToken :: string() | binary(),
-                  RuleId :: string(),
-                  Updates :: [waf_rule_update()]) ->
-    waf_return_val().
+-spec update_rule/3 ::
+       (ChangeToken :: string() | binary(),
+        RuleId :: string(),
+        Updates :: [waf_rule_update()]) ->
+       waf_return_val().
 update_rule(ChangeToken, RuleId, Updates) ->
     update_rule(ChangeToken, RuleId, Updates, default_config()).
 
--spec update_rule(ChangeToken :: string() | binary(),
-                  RuleId :: string() | binary(),
-                  Updates :: [waf_rule_update()],
-                  Config :: aws_config()) ->
-    waf_return_val().
+-spec update_rule/4 ::
+       (ChangeToken :: string() | binary(),
+        RuleId :: string() | binary(),
+        Updates :: [waf_rule_update()],
+        Config :: aws_config()) ->
+       waf_return_val().
 update_rule(ChangeToken, RuleId, Updates, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"RuleId">>, to_binary(RuleId)},
@@ -919,18 +1010,20 @@ update_rule(ChangeToken, RuleId, Updates, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_UpdateSizeConstraintSet.html
 %%%------------------------------------------------------------------------------
--spec update_size_constraint_set(ChangeToken :: string() | binary(),
-                                 SizeConstraintSetId :: string() | binary(),
-                                 Updates :: [waf_size_constraint_update()]) ->
-    waf_return_val().
+-spec update_size_constraint_set/3 ::
+       (ChangeToken :: string() | binary(),
+        SizeConstraintSetId :: string() | binary(),
+        Updates :: [waf_size_constraint_update()]) ->
+       waf_return_val().
 update_size_constraint_set(ChangeToken, SizeConstraintSetId, Updates) ->
     update_size_constraint_set(ChangeToken, SizeConstraintSetId, Updates, default_config()).
 
--spec update_size_constraint_set(ChangeToken :: string() | binary(),
-                                 SizeConstraintSetId :: string() | binary(),
-                                 Updates :: [waf_size_constraint_update()],
-                                 Config :: aws_config()) ->
-    waf_return_val().
+-spec update_size_constraint_set/4 ::
+       (ChangeToken :: string() | binary(),
+        SizeConstraintSetId :: string() | binary(),
+        Updates :: [waf_size_constraint_update()],
+        Config :: aws_config()) ->
+       waf_return_val().
 update_size_constraint_set(ChangeToken, SizeConstraintSetId, Updates, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"SizeConstraintSetId">>, to_binary(SizeConstraintSetId)},
@@ -942,18 +1035,20 @@ update_size_constraint_set(ChangeToken, SizeConstraintSetId, Updates, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_UpdateSqlInjectionMatchSet.html
 %%%------------------------------------------------------------------------------
--spec update_sql_injection_match_set(
-    ChangeToken :: string() | binary(),
-    SqlInjectionMatchSetId :: string() | binary(),
-    Updates :: [waf_sql_injection_match_set_update()]) -> waf_return_val().
+-spec update_sql_injection_match_set/3 ::
+       (ChangeToken :: string() | binary(),
+        SqlInjectionMatchSetId :: string() | binary(),
+        Updates :: [waf_sql_injection_match_set_update()]) ->
+       waf_return_val().
 update_sql_injection_match_set(ChangeToken, SqlInjectionMatchSetId, Updates) ->
     update_sql_injection_match_set(ChangeToken, SqlInjectionMatchSetId, Updates, default_config()).
 
--spec update_sql_injection_match_set(
-    ChangeToken :: string() | binary(),
-    SqlInjectionMatchSetId :: string() | binary(),
-    Updates :: [waf_sql_injection_match_set_update()],
-    Config :: aws_config()) -> waf_return_val().
+-spec update_sql_injection_match_set/4 ::
+       (ChangeToken :: string() | binary(),
+        SqlInjectionMatchSetId:: string() | binary(),
+        Updates :: [waf_sql_injection_match_set_update()],
+        Config :: aws_config()) ->
+       waf_return_val().
 update_sql_injection_match_set(ChangeToken, SqlInjectionMatchSetId, Updates, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"SqlInjectionMatchSetId">>, to_binary(SqlInjectionMatchSetId)},
@@ -982,18 +1077,20 @@ get_web_acl_opts([{updates, Updates} | T], Res) ->
 
 get_web_acl_opts([_ | T], Res) -> get_web_acl_opts(T, Res).
 
--spec update_web_acl(ChangeToken :: string() | binary(),
-                     WebACLId :: string() | binary(),
-                     Opts :: update_web_acl_opts()) ->
-    waf_return_val().
+-spec update_web_acl/3 ::
+       (ChangeToken :: string() | binary(),
+        WebACLId :: string() | binary(),
+        Opts :: update_web_acl_opts()) ->
+       waf_return_val().
 update_web_acl(ChangeToken, WebACLId, Opts) ->
     update_web_acl(ChangeToken, WebACLId, Opts, default_config()).
 
--spec update_web_acl(ChangeToken :: string() | binary(),
-                     WebACLId :: string() | binary(),
-                     Opts :: update_web_acl_opts(),
-                     Config :: aws_config()) ->
-    waf_return_val().
+-spec update_web_acl/4 ::
+       (ChangeToken :: string() | binary(),
+        WebACLId :: string() | binary(),
+        Opts :: update_web_acl_opts(),
+        Config :: aws_config()) ->
+       waf_return_val().
 update_web_acl(ChangeToken, WebACLId, Opts, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"WebACLId">>, to_binary(WebACLId)} | get_web_acl_opts(Opts)],
@@ -1005,18 +1102,20 @@ update_web_acl(ChangeToken, WebACLId, Opts, Config) ->
 %%
 %% http://docs.aws.amazon.com/waf/latest/APIReference/API_UpdateXssMatchSet.html
 %%%------------------------------------------------------------------------------
--spec update_xss_match_set(ChangeToken :: string() | binary(),
-                           XssMatchSetId :: string() | binary(),
-                           Updates :: [waf_xss_match_set_update()]) ->
-    waf_return_val().
+-spec update_xss_match_set/3 ::
+       (ChangeToken :: string() | binary(),
+        XssMatchSetId :: string() | binary(),
+        Updates :: [waf_xss_match_set_update()]) ->
+       waf_return_val().
 update_xss_match_set(ChangeToken, XssMatchSetId, Updates) ->
     update_xss_match_set(ChangeToken, XssMatchSetId, Updates, default_config()).
 
--spec update_xss_match_set(ChangeToken :: string() | binary(),
-                           XssMatchSetId :: string() | binary(),
-                           Updates :: [waf_xss_match_set_update()],
-                           Config :: aws_config()) ->
-    waf_return_val().
+-spec update_xss_match_set/4 ::
+       (ChangeToken :: string() | binary(),
+        XssMatchSetId :: string() | binary(),
+        Updates :: [waf_xss_match_set_update()],
+        Config :: aws_config()) ->
+       waf_return_val().
 update_xss_match_set(ChangeToken, XssMatchSetId, Updates, Config) ->
     Json = [{<<"ChangeToken">>, to_binary(ChangeToken)},
             {<<"XssMatchSetId">>, to_binary(XssMatchSetId)},
@@ -1026,13 +1125,14 @@ update_xss_match_set(ChangeToken, XssMatchSetId, Updates, Config) ->
 %%%------------------------------------------------------------------------------
 %%% Internal Functions
 %%%------------------------------------------------------------------------------
--spec transform_to_proplist(waf_byte_match_set_update() |
-                            waf_ip_set_update() |
-                            waf_rule_update() |
-                            waf_size_constraint_update() |
-                            waf_sql_injection_match_set_update() |
-                            waf_web_acl_update()) ->
-    proplists:proplist().
+-spec transform_to_proplist/1 ::
+        (waf_byte_match_set_update() |
+         waf_ip_set_update() |
+         waf_rule_update() |
+         waf_size_constraint_update() |
+         waf_sql_injection_match_set_update() |
+         waf_web_acl_update()) ->
+       proplists:proplist().
 transform_to_proplist(#waf_byte_match_set_update{action = Action, byte_match_tuple = ByteMatchTuple}) ->
     [{<<"Action">>, get_update_action(Action)},
      {<<"ByteMatchTuple">>, record_to_proplist(ByteMatchTuple)}];
@@ -1061,14 +1161,15 @@ transform_to_proplist(#waf_xss_match_set_update{action = Action, xss_match_tuple
     [{<<"Action">>, get_update_action(Action)},
      {<<"XssMatchTuple">>, record_to_proplist(XssMatchTuple)}].
 
--spec record_to_proplist(waf_rule_predicate() |
-                         waf_ip_set_descriptor() |
-                         waf_byte_match_tuple() |
-                         waf_size_constraint() |
-                         waf_sql_injection_match_tuple() |
-                         waf_activated_rule() |
-                         waf_xss_match_tuple()) ->
-    proplists:proplist().
+-spec record_to_proplist/1 ::
+        (waf_rule_predicate() |
+         waf_ip_set_descriptor() |
+         waf_byte_match_tuple() |
+         waf_size_constraint() |
+         waf_sql_injection_match_tuple() |
+         waf_activated_rule() |
+         waf_xss_match_tuple()) ->
+        proplists:proplist().
 record_to_proplist(#waf_rule_predicate{data_id = DataId, negated = Negated, type = Type}) ->
     [{<<"DataId">>, to_binary(DataId)},
      {<<"Negated">>, to_binary(Negated)},
@@ -1185,7 +1286,8 @@ waf_request_no_update(Config, Operation, Body) ->
         {error, _} = Error-> Error
     end.
 
--spec waf_result_fun(Request :: aws_request()) -> aws_request().
+-spec waf_result_fun/1 ::
+          (Request :: aws_request()) -> aws_request().
 waf_result_fun(#aws_request{response_type = ok} = Request) ->
     Request;
 waf_result_fun(#aws_request{response_type = error,
